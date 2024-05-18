@@ -1,8 +1,6 @@
 package com.johanle.comicsonlinebackend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +9,7 @@ import java.util.List;
 public class Comic {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int comicId;
     private String nameComic;
     private String author;
@@ -20,6 +18,18 @@ public class Comic {
     private  String genre;
     private int chapNumber;
     private String rating;
+
+    @ManyToOne
+    @JoinColumn(name = "admin_id", insertable = false, updatable = false)
+    private Admin admin;
+
+    @ManyToOne
+    @JoinColumn(name = "registerUser_id", insertable = false, updatable = false)
+    private RegisterUser registerUser;
+
+    @ManyToOne
+    @JoinColumn(name = "guest_id", insertable = false, updatable = false)
+    private Guest guest;
 
     public String getAuthor() {
         return author;

@@ -1,8 +1,6 @@
 package com.johanle.comicsonlinebackend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.List;
 
@@ -10,11 +8,14 @@ import java.util.List;
 public class RegisterUser {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
     private String username;
     private String email;
     private String password;
     private List<Comic> readingList;
     private String  roleName;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "registerUser")
+    private List<Comic> comicList;
 }
