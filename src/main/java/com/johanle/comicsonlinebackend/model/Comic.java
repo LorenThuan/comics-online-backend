@@ -2,33 +2,50 @@ package com.johanle.comicsonlinebackend.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Comic {
+public class Comic implements Serializable {
 
     @Id
+    @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int comicId;
+
+    @Column(nullable = false)
     private String nameComic;
+
     private String author;
-    private List<String> img = new ArrayList<>();
+//    private List<String> img = new ArrayList<>();
+
+
     private int year;
+
+    @Column(nullable = false)
     private  String genre;
-    private int chapNumber;
+//  private int chapNumber;
     private String rating;
 
+    public Comic(String author, String genre, String nameComic, String rating, int year) {
+        this.author = author;
+        this.genre = genre;
+        this.nameComic = nameComic;
+        this.rating = rating;
+        this.year = year;
+    }
+
     @ManyToOne
-    @JoinColumn(name = "admin_id", insertable = false, updatable = false)
+    @JoinColumn(name = "admin_id", insertable = false, updatable = false, nullable = true)
     private Admin admin;
 
     @ManyToOne
-    @JoinColumn(name = "registerUser_id", insertable = false, updatable = false)
+    @JoinColumn(name = "registerUser_id", insertable = false, updatable = false, nullable = true)
     private RegisterUser registerUser;
 
     @ManyToOne
-    @JoinColumn(name = "guest_id", insertable = false, updatable = false)
+    @JoinColumn(name = "guest_id", insertable = false, updatable = false, nullable = true)
     private Guest guest;
 
     public String getAuthor() {
@@ -37,14 +54,6 @@ public class Comic {
 
     public void setAuthor(String author) {
         this.author = author;
-    }
-
-    public int getChapNumber() {
-        return chapNumber;
-    }
-
-    public void setChapNumber(int chapNumber) {
-        this.chapNumber = chapNumber;
     }
 
     public int getComicId() {
@@ -61,14 +70,6 @@ public class Comic {
 
     public void setGenre(String genre) {
         this.genre = genre;
-    }
-
-    public List<String> getImg() {
-        return img;
-    }
-
-    public void setImg(List<String> img) {
-        this.img = img;
     }
 
     public String getNameComic() {
@@ -93,10 +94,8 @@ public class Comic {
                 "author='" + author + '\'' +
                 ", comicId=" + comicId +
                 ", nameComic='" + nameComic + '\'' +
-                ", img=" + img +
                 ", year=" + year +
                 ", genre='" + genre + '\'' +
-                ", chapNumber=" + chapNumber +
                 '}';
     }
 }

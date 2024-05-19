@@ -20,8 +20,8 @@ public class ComicService {
         this.comicRepository = comicRepository;
     }
 
-    public void uploadComics(Comic comic) {
-        comicRepository.save(comic);
+    public Comic uploadComics(Comic comic) {
+        return comicRepository.save(comic);
     }
 
     public Comic readComics(int comicId) {
