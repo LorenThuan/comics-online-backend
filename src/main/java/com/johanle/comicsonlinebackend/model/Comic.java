@@ -1,16 +1,21 @@
 package com.johanle.comicsonlinebackend.model;
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Comic implements Serializable {
 
     @Id
-    @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int comicId;
 
@@ -18,35 +23,64 @@ public class Comic implements Serializable {
     private String nameComic;
 
     private String author;
-//    private List<String> img = new ArrayList<>();
+    @Column(nullable = false)
+    private String image_src;
 
+//    @Column(nullable = false)
+//    private String genre;
 
-    private int year;
+//  private int chapNumber;
+//    private String rating;
 
     @Column(nullable = false)
-    private  String genre;
-//  private int chapNumber;
-    private String rating;
+    private String state;
 
-    public Comic(String author, String genre, String nameComic, String rating, int year) {
-        this.author = author;
-        this.genre = genre;
-        this.nameComic = nameComic;
-        this.rating = rating;
-        this.year = year;
+    private int liked;
+
+    private int followed;
+
+    private Long views;
+
+    @CreatedDate
+    @Column(nullable = true, updatable = false)
+    private LocalDateTime createDate;
+
+    @LastModifiedDate
+    @Column(insertable = false)
+    private LocalDateTime lastModifiedDate;
+
+    @CreatedBy
+    @Column(nullable = true, updatable = false)
+    private String createBy;
+
+
+    @LastModifiedBy
+    @Column(insertable = false)
+    private LocalDateTime lastModifiedBy;
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "comic", cascade=CascadeType.ALL)
+    private List<Genre> genreList;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "comic", cascade=CascadeType.ALL)
+    private List<Chapter> chapterList;
+
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", insertable = true, updatable = true, nullable = true)
+    private User user;
+
+
+    public Comic() {
     }
 
-    @ManyToOne
-    @JoinColumn(name = "admin_id", insertable = false, updatable = false, nullable = true)
-    private Admin admin;
+    public Comic(String author, String image_src, String nameComic, String state) {
+        this.author = author;
+        this.image_src = image_src;
+        this.nameComic = nameComic;
+        this.state = state;
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "registerUser_id", insertable = false, updatable = false, nullable = true)
-    private RegisterUser registerUser;
-
-    @ManyToOne
-    @JoinColumn(name = "guest_id", insertable = false, updatable = false, nullable = true)
-    private Guest guest;
 
     public String getAuthor() {
         return author;
@@ -64,12 +98,29 @@ public class Comic implements Serializable {
         this.comicId = comicId;
     }
 
-    public String getGenre() {
-        return genre;
+    public int getFollowed() {
+        return followed;
     }
 
-    public void setGenre(String genre) {
-        this.genre = genre;
+    public void setFollowed(int followed) {
+        this.followed = followed;
+    }
+
+
+    public String getImage_src() {
+        return image_src;
+    }
+
+    public void setImage_src(String image_src) {
+        this.image_src = image_src;
+    }
+
+    public int getLiked() {
+        return liked;
+    }
+
+    public void setLiked(int liked) {
+        this.liked = liked;
     }
 
     public String getNameComic() {
@@ -80,22 +131,34 @@ public class Comic implements Serializable {
         this.nameComic = nameComic;
     }
 
-    public int getYear() {
-        return year;
+
+    public String getState() {
+        return state;
     }
 
-    public void setYear(int year) {
-        this.year = year;
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public Long getViews() {
+        return views;
+    }
+
+    public void setViews(Long views) {
+        this.views = views;
     }
 
     @Override
     public String toString() {
         return "Comic{" +
-                "author='" + author + '\'' +
                 ", comicId=" + comicId +
                 ", nameComic='" + nameComic + '\'' +
-                ", year=" + year +
-                ", genre='" + genre + '\'' +
+                ", author='" + author + '\'' +
+                ", image_src='" + image_src + '\'' +
+                ", state='" + state + '\'' +
+                ", liked=" + liked +
+                ", followed=" + followed +
+                ", views=" + views +
                 '}';
     }
 }
