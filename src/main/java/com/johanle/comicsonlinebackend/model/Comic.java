@@ -1,6 +1,8 @@
 package com.johanle.comicsonlinebackend.model;
 
+import com.johanle.comicsonlinebackend.dto.ComicRequest;
 import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -12,6 +14,41 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@SqlResultSetMapping(
+        name = "ComicRequestMapping",
+        classes = @ConstructorResult(
+                targetClass = ComicRequest.class,
+                columns = {
+                        @ColumnResult(name = "comic_id", type = Integer.class),
+                        @ColumnResult(name = "name_comic", type = String.class),
+                        @ColumnResult(name = "author", type = String.class),
+                        @ColumnResult(name = "image_src", type = String.class),
+                        @ColumnResult(name = "state", type = String.class),
+                        @ColumnResult(name = "create_date", type = LocalDateTime.class),
+                        @ColumnResult(name = "create_date_chapter", type = LocalDateTime.class),
+                        @ColumnResult(name = "last_modified_date_chapter", type = LocalDateTime.class),
+                        @ColumnResult(name = "last_modified_date", type = LocalDateTime.class),
+                        @ColumnResult(name = "genre_list", type = String.class),
+                        @ColumnResult(name = "chapter_list", type = String.class)
+                }
+        )
+)
+@NamedNativeQuery(
+        name = "ComicRequest.getLimitComic",
+        query = "SELECT distinct C.comic_id, name_comic, author, image_src, state, C.create_date, CH.create_date AS create_date_chapter, CH.last_modified_date AS last_modified_date_chapter, C.last_modified_date, " +
+                "GROUP_CONCAT(distinct genre ORDER BY genre SEPARATOR ', ') AS genre_list, " +
+                "GROUP_CONCAT(distinct chapter_number ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list " +
+                "FROM genre G JOIN comic C ON G.comic_id = C.comic_id JOIN chapter CH ON C.comic_id = CH.comic_id " +
+                "GROUP BY C.create_date, CH.create_date, CH.last_modified_date, C.comic_id, C.last_modified_date " +
+                "ORDER BY CH.create_date DESC, CH.last_modified_date DESC, C.comic_id DESC, C.create_date DESC, C.last_modified_date DESC " +
+                "LIMIT 12",
+        resultSetMapping = "ComicRequestMapping"
+)
 @EntityListeners(AuditingEntityListener.class)
 public class Comic implements Serializable {
 
@@ -65,100 +102,8 @@ public class Comic implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "comic", cascade=CascadeType.ALL)
     private List<Chapter> chapterList;
 
-
     @ManyToOne
-    @JoinColumn(name = "user_id", insertable = true, updatable = true, nullable = true)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false, nullable = true)
     private User user;
 
-
-    public Comic() {
-    }
-
-    public Comic(String author, String image_src, String nameComic, String state) {
-        this.author = author;
-        this.image_src = image_src;
-        this.nameComic = nameComic;
-        this.state = state;
-    }
-
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public int getComicId() {
-        return comicId;
-    }
-
-    public void setComicId(int comicId) {
-        this.comicId = comicId;
-    }
-
-    public int getFollowed() {
-        return followed;
-    }
-
-    public void setFollowed(int followed) {
-        this.followed = followed;
-    }
-
-
-    public String getImage_src() {
-        return image_src;
-    }
-
-    public void setImage_src(String image_src) {
-        this.image_src = image_src;
-    }
-
-    public int getLiked() {
-        return liked;
-    }
-
-    public void setLiked(int liked) {
-        this.liked = liked;
-    }
-
-    public String getNameComic() {
-        return nameComic;
-    }
-
-    public void setNameComic(String nameComic) {
-        this.nameComic = nameComic;
-    }
-
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public Long getViews() {
-        return views;
-    }
-
-    public void setViews(Long views) {
-        this.views = views;
-    }
-
-    @Override
-    public String toString() {
-        return "Comic{" +
-                ", comicId=" + comicId +
-                ", nameComic='" + nameComic + '\'' +
-                ", author='" + author + '\'' +
-                ", image_src='" + image_src + '\'' +
-                ", state='" + state + '\'' +
-                ", liked=" + liked +
-                ", followed=" + followed +
-                ", views=" + views +
-                '}';
-    }
 }

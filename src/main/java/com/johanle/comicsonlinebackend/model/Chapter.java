@@ -27,7 +27,7 @@ public class Chapter implements Serializable {
     private String chapterNumber;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = true, updatable = false)
     private LocalDateTime createDate;
 
     @LastModifiedDate
@@ -35,9 +35,8 @@ public class Chapter implements Serializable {
     private LocalDateTime lastModifiedDate;
 
     @CreatedBy
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = true, updatable = false)
     private String createBy;
-
 
     @LastModifiedBy
     @Column(insertable = false)
@@ -46,5 +45,4 @@ public class Chapter implements Serializable {
     @ManyToOne
     @JoinColumn(name = "comic_id")
     private Comic comic;
-
 }

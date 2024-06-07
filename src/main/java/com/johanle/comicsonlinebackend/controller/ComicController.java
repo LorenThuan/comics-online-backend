@@ -1,13 +1,15 @@
 package com.johanle.comicsonlinebackend.controller;
 
+import com.johanle.comicsonlinebackend.dto.ComicRequest;
 import com.johanle.comicsonlinebackend.model.Comic;
 import com.johanle.comicsonlinebackend.service.ComicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @CrossOrigin("http://localhost:5173/")
@@ -49,11 +51,10 @@ public class ComicController {
     }
 
     /*Show 12 last update comic*/
-    @GetMapping("/last-comics")
-    public List<Comic> showLastListComic() throws Exception{
-        List<Comic> comicList = comicService.getLastListComic();
-        System.out.println(Arrays.toString(comicList.toArray()));
-        return comicList;
+    @GetMapping("/comic/last-comics")
+    public ResponseEntity<List<ComicRequest>> showLastListComic() throws Exception{
+        List<ComicRequest> comicRequestList = comicService.getLastListComic();
+        return new ResponseEntity<>(comicRequestList, HttpStatus.OK);
     }
 
 }

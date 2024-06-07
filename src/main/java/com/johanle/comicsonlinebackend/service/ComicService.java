@@ -1,14 +1,15 @@
 package com.johanle.comicsonlinebackend.service;
 
+import com.johanle.comicsonlinebackend.dto.ComicRequest;
 import com.johanle.comicsonlinebackend.model.Comic;
 import com.johanle.comicsonlinebackend.repository.ComicRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -52,11 +53,11 @@ public class ComicService {
                 }).orElse(null);
     }
 
-    public List<Comic> getLastListComic() {
-        comicListUpdate = new LinkedList<>();
-        for (Comic comic : comicRepository.getLimitComic()) {
-            comicListUpdate.add(comic);
+    public List<ComicRequest> getLastListComic() {
+        List<ComicRequest> comicRequests = comicRepository.getLimitComic();
+        for (ComicRequest comicRequest1: comicRequests) {
+            System.out.println(comicRequest1);
         }
-        return comicListUpdate;
+        return comicRequests;
     }
 }

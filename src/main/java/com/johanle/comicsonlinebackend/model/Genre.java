@@ -1,10 +1,16 @@
 package com.johanle.comicsonlinebackend.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.io.Serializable;
 
 @Entity
+@Data
+@Builder
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Genre implements Serializable {
 
     @Id
@@ -12,34 +18,10 @@ public class Genre implements Serializable {
     private int genreId;
 
     @Column(nullable = false)
-    private String gerne;
+    private String genre;
 
     @ManyToOne
     @JoinColumn(name = "comic_id")
     private Comic comic;
-
-    public Genre() {
-    }
-
-    public Genre(String gerne) {
-        this.gerne = gerne;
-    }
-
-    public int getGenreId() {
-        return genreId;
-    }
-
-    public void setGenreId(int genreId) {
-        this.genreId = genreId;
-    }
-
-    public String getGerne() {
-        return gerne;
-    }
-
-    public void setGerne(String gerne) {
-        this.gerne = gerne;
-    }
-
 
 }
