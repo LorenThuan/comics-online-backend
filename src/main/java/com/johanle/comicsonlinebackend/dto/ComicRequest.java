@@ -18,26 +18,30 @@ public class ComicRequest {
     private String author;
     private String image_src;
     private String state;
-    private LocalDateTime createDate;
-    private LocalDateTime createDateChapter;
-    private LocalDateTime lastModifiedDateChapter;
-    private LocalDateTime lastModifiedDate;
+    private long views;
+    private int liked;
+    private int followed;
+    private LocalDateTime create_date;
+    private LocalDateTime create_date_chapter;
+    private LocalDateTime last_modified_date_chapter;
+    private LocalDateTime last_modified_date;
 
     private List<String> genreList;
     private List<String> chapterList;
 
-    public ComicRequest(int comic_id, String name_comic, String author, String image_src, String state,
-                        LocalDateTime createDate, LocalDateTime createDateChapter, LocalDateTime lastModifiedDateChapter,
-                        LocalDateTime lastModifiedDate, String genreList, String chapterList) {
+    public ComicRequest(int comic_id, String name_comic, String author, String image_src, String state, Long views, int liked, int followed, LocalDateTime create_date, LocalDateTime create_date_chapter, LocalDateTime last_modified_date_chapter, LocalDateTime last_modified_date, String genreList, String chapterList) {
         this.comic_id = comic_id;
         this.name_comic = name_comic;
         this.author = author;
         this.image_src = image_src;
         this.state = state;
-        this.createDate = createDate;
-        this.createDateChapter = createDateChapter;
-        this.lastModifiedDateChapter = lastModifiedDateChapter;
-        this.lastModifiedDate = lastModifiedDate;
+        this.views = views;
+        this.liked = liked;
+        this.followed = followed;
+        this.create_date = create_date;
+        this.create_date_chapter = create_date_chapter;
+        this.last_modified_date_chapter = last_modified_date_chapter;
+        this.last_modified_date = last_modified_date;
         this.genreList = convertStringToList(genreList);
         this.chapterList = convertStringToList(chapterList);
     }
