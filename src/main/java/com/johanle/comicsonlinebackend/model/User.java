@@ -23,7 +23,7 @@ public class User implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
-    private String username;
+    private String name;
     private String email;
     private String password;
 //    private List<Comic> readingList;
@@ -45,10 +45,6 @@ public class User implements Serializable, UserDetails {
     @Override
     public String getUsername() {
         return email;
-    }
-
-    public String getUsernameEntity() {
-        return username;
     }
 
     @Override

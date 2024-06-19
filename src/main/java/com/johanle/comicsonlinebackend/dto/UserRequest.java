@@ -17,7 +17,7 @@ public class UserRequest {
     private String token;
     private String refreshToken;
     private String expirationTime;
-    private String username;
+    private String name;
     private String role;
     private String email;
     private String password;

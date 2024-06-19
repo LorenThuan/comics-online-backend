@@ -34,7 +34,7 @@ public class UserService {
         UserRequest userRequest = new UserRequest();
         try {
             User user = new User();
-            user.setUsername(registrationRequest.getUsername());
+            user.setName(registrationRequest.getName());
             user.setEmail(registrationRequest.getEmail());
             user.setRole(registrationRequest.getRole());
             user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
@@ -137,8 +137,8 @@ public class UserService {
             if (userOptinal.isPresent()) {
                 User existingUser = userOptinal.get();
                 existingUser.setEmail(updateUser.getEmail());
-                existingUser.setUsername(updateUser.getUsernameEntity());
-                
+                existingUser.setName(updateUser.getName());
+                existingUser.setRole(updateUser.getRole());
                 /*Check if password is present in the request*/
                 if (updateUser.getPassword() != null && !updateUser.getPassword().isEmpty()) {
                     existingUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
