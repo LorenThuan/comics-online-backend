@@ -34,11 +34,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(request -> request.requestMatchers("/auth/**", "/public/**", "/**", "/comic/**", "/comics/**").permitAll()
+                .authorizeHttpRequests(request -> request.requestMatchers("/auth/**", "/public/**", "/**", "/comic/**", "/comics/**", "/titles/follows").permitAll()
                         .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
-                        .requestMatchers( "/my/**", "/titles/feed", "/titles/follows").hasAnyAuthority("ROLE_USER")
-                        .requestMatchers("/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers("/titles/**", "/title/**").permitAll()
+                        .requestMatchers( "/my/**", "/titles/feed").hasAnyAuthority("ROLE_USER")
+                        .requestMatchers("/user/**", "/users/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+//                        .requestMatchers("/titles/**", "/title/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(

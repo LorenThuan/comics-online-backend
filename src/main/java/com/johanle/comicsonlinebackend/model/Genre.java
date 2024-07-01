@@ -1,5 +1,6 @@
 package com.johanle.comicsonlinebackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,9 +9,9 @@ import java.io.Serializable;
 @Entity
 @Data
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"comic"})
 public class Genre implements Serializable {
 
     @Id
@@ -22,6 +23,6 @@ public class Genre implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "comic_id")
+    @JsonIgnore
     private Comic comic;
-
 }

@@ -2,6 +2,7 @@ package com.johanle.comicsonlinebackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.johanle.comicsonlinebackend.model.Comic;
 import com.johanle.comicsonlinebackend.model.User;
 import lombok.Data;
 

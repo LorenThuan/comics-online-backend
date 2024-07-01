@@ -1,14 +1,15 @@
 package com.johanle.comicsonlinebackend.service;
 
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
+import com.johanle.comicsonlinebackend.dto.ComicTest;
 import com.johanle.comicsonlinebackend.model.Comic;
 import com.johanle.comicsonlinebackend.repository.ComicRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -21,6 +22,7 @@ public class ComicService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
 
     public ComicService(ComicRepository comicRepository) {;
         this.comicRepository = comicRepository;
@@ -36,7 +38,6 @@ public class ComicService {
 
     /*find all comic*/
     public List<Comic> findAllComics() throws Exception {
-
         return comicRepository.findAll();
     }
 
@@ -72,6 +73,16 @@ public class ComicService {
     public List<ComicRequest> findByNameOrAuthor(String searchQuery) {
         Query query = entityManager.createNamedQuery("ComicRequest.findByNameOrAuthor", ComicRequest.class);
         query.setParameter("searchQuery", "%" + searchQuery + "%");
+        return query.getResultList();
+    }
+
+    public List<ComicTest> findComicsQuery(String stateCheckBox, String numOption, String sortByOption, String genres) {
+        StoredProcedureQuery query = entityManager.createNamedStoredProcedureQuery("ComicTestMapping.findComicsQuery");
+        query.setParameter("stateCheckBox", stateCheckBox);
+        query.setParameter("numOption", numOption);
+        query.setParameter("sortByOption", sortByOption);
+        query.setParameter("genres", genres);
+
         return query.getResultList();
     }
 }

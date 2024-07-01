@@ -1,5 +1,6 @@
 package com.johanle.comicsonlinebackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"comic"})
 @EntityListeners(AuditingEntityListener.class)
 public class Chapter implements Serializable {
 
@@ -34,15 +35,16 @@ public class Chapter implements Serializable {
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
 
-    @CreatedBy
-    @Column(nullable = true, updatable = false)
-    private String createBy;
-
-    @LastModifiedBy
-    @Column(insertable = false)
-    private LocalDateTime lastModifiedBy;
+//    @CreatedBy
+//    @Column(nullable = true, updatable = false)
+//    private String createBy;
+//
+//    @LastModifiedBy
+//    @Column(insertable = false)
+//    private String lastModifiedBy;
 
     @ManyToOne
     @JoinColumn(name = "comic_id")
+    @JsonIgnore
     private Comic comic;
 }

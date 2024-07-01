@@ -1,7 +1,9 @@
 package com.johanle.comicsonlinebackend.controller;
 
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
+import com.johanle.comicsonlinebackend.dto.ComicTest;
 import com.johanle.comicsonlinebackend.model.Comic;
+import com.johanle.comicsonlinebackend.repository.ComicRepository;
 import com.johanle.comicsonlinebackend.service.ComicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,11 +17,14 @@ import java.util.*;
 public class ComicController {
 
     @Autowired
-    private final ComicService comicService;
+    private ComicService comicService;
 
-    public ComicController(ComicService comicService) {
-        this.comicService = comicService;
-    }
+    @Autowired
+    private ComicRepository comicRepository;
+
+//    public ComicController(ComicService comicService) {
+//        this.comicService = comicService;
+//    }
 
     @PostMapping("/comic")
     public Comic addComic(@RequestBody Comic comic) {
@@ -64,10 +69,20 @@ public class ComicController {
     }
 
     /*Get Comic By name or author*/
-    @GetMapping("/comics/search-list/{searchQuery}")
-    public ResponseEntity<List<ComicRequest>> findByNameOrAuthor(@PathVariable String searchQuery) throws Exception{
+    @GetMapping("/comics/search-list/")
+    public ResponseEntity<List<ComicRequest>> findByNameOrAuthor(@RequestParam String searchQuery) throws Exception{
         List<ComicRequest> comicRequestList = comicService.findByNameOrAuthor(searchQuery);
         return new ResponseEntity<>(comicRequestList, HttpStatus.OK);
+    }
+
+    @GetMapping("/titles/find")
+    public List<ComicTest> findComics(
+            @RequestParam String stateCheckBox,
+            @RequestParam String numOption,
+            @RequestParam String sortByOption,
+            @RequestParam String genres
+    ) {
+        return comicService.findComicsQuery(stateCheckBox, numOption, sortByOption, genres);
     }
 
 }

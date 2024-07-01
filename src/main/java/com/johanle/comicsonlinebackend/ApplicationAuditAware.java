@@ -1,6 +1,7 @@
 package com.johanle.comicsonlinebackend;
 
 import com.johanle.comicsonlinebackend.model.User;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;

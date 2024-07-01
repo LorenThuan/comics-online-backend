@@ -1,25 +1,32 @@
 package com.johanle.comicsonlinebackend.service;
 
 import com.johanle.comicsonlinebackend.dto.UserRequest;
+import com.johanle.comicsonlinebackend.model.Comic;
 import com.johanle.comicsonlinebackend.model.User;
+import com.johanle.comicsonlinebackend.repository.ComicRepository;
 import com.johanle.comicsonlinebackend.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
+@Transactional
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+
+    private final ComicRepository comicRepository;
 
     @Autowired
     private JWTUtils jwtUtils;
@@ -30,7 +37,16 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserRequest register(UserRequest registrationRequest){
+    private final List<Comic> comicList = new ArrayList<>();
+    ;
+
+
+    public UserService(UserRepository userRepository, ComicRepository comicRepository) {
+        this.userRepository = userRepository;
+        this.comicRepository = comicRepository;
+    }
+
+    public UserRequest register(UserRequest registrationRequest) {
         UserRequest userRequest = new UserRequest();
         try {
             User user = new User();
@@ -96,7 +112,7 @@ public class UserService {
         return userRequest;
     }
 
-    public UserRequest getAllUsers(){
+    public UserRequest getAllUsers() {
         UserRequest userRequest = new UserRequest();
         try {
             List<User> userList = userRepository.findAll();
@@ -111,7 +127,7 @@ public class UserService {
             return userRequest;
         } catch (Exception e) {
             userRequest.setStatusCode(500);
-            userRequest.setError("Error occurred: "+ e.getMessage());
+            userRequest.setError("Error occurred: " + e.getMessage());
             return userRequest;
         }
     }
@@ -193,5 +209,82 @@ public class UserService {
         }
         return userRequest;
     }
+
+    public UserRequest findUserByName(String name) {
+        UserRequest userRequest = new UserRequest();
+        try {
+            List<User> userList = userRepository.findUserByName(name);
+            if (!userList.isEmpty()) {
+                userRequest.setUserList(userList);
+                userRequest.setStatusCode(200);
+                userRequest.setMessage("Successfully");
+            } else {
+                userRequest.setStatusCode(404);
+                userRequest.setMessage("No users found");
+            }
+            return userRequest;
+        } catch (Exception e) {
+            userRequest.setStatusCode(500);
+            userRequest.setError("Error occurred: " + e.getMessage());
+            return userRequest;
+        }
+    }
+
+    public UserRequest getAllUserMembers() {
+        UserRequest userRequest = new UserRequest();
+        try {
+            List<User> userListMember = userRepository.getAllUserMembers();
+            if (!userListMember.isEmpty()) {
+                userRequest.setUserList(userListMember);
+                userRequest.setStatusCode(200);
+                userRequest.setMessage("Successfully");
+            } else {
+                userRequest.setStatusCode(404);
+                userRequest.setMessage("No users found");
+            }
+            return userRequest;
+        } catch (Exception e) {
+            userRequest.setStatusCode(500);
+            userRequest.setError("Error occurred: " + e.getMessage());
+            return userRequest;
+        }
+    }
+
+    public User addToLibrary(int comic_id, String email) {
+        User result = null;
+        try {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        Comic comic = comicRepository.findById(comic_id).orElse(null);
+        System.out.println(comic);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+
+            // Add the comic to the user's comic list
+            if (user.getComicList() == null) {
+                user.setComicList(new ArrayList<>());
+            }
+
+            if (!user.getComicList().contains(comic)) {
+                comic.setUser(user);
+                user.getComicList().add(comic);
+                System.out.println(user);
+                System.out.println(comic);
+                comicRepository.save(comic);
+                result = userRepository.save(user);
+                System.out.println(user.getComicList());
+                System.out.println("Comic added to library successfully");
+            } else {
+                System.out.println("Comic already in library");
+               }
+        } else {
+                System.out.println("User not found");
+                }
+        } catch (Exception e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        }
+        return result;
+    }
+
 
 }

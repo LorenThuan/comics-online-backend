@@ -2,6 +2,7 @@ package com.johanle.comicsonlinebackend.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -17,15 +18,16 @@ import java.util.function.Function;
 @Component
 public class JWTUtils {
 
-    private SecretKey key;
+    private final SecretKey key;
 
-    private static final long EXPIRATION_TiME = 86400000; //24Hours by miliseconds
+    private static final long EXPIRATION_TiME = 86400000L; //24Hours by miliseconds
 
     public JWTUtils() {
         String secretString = "sdsjhe84j86cx4qtor7pkxn5qla92cv3xfskfte89ufbitadqdub20kfqj013ci7u4bhxnsq4f8xa0qpk5krmwq5l596i5u1qwocbk40d5f";
-        byte[] keyBytes = Base64.getDecoder().decode(secretString.getBytes(StandardCharsets.UTF_8));
-        this.key = new SecretKeySpec(keyBytes, "HmacSHA256");
-        System.out.println(keyBytes);
+        byte[] keyBytes = Base64.getDecoder().decode(secretString);
+//        this.key = new SecretKeySpec(keyBytes, "HmacSHA256");
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        System.out.println(key);
     }
 
     public String generateToken(UserDetails userDetails) {

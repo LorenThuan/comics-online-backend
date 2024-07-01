@@ -1,6 +1,10 @@
 package com.johanle.comicsonlinebackend.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
+import com.johanle.comicsonlinebackend.dto.ComicTest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
@@ -12,13 +16,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"genreList", "chapterList", "user"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @SqlResultSetMapping(
         name = "ComicRequestMapping",
         classes = @ConstructorResult(
@@ -37,7 +43,31 @@ import java.util.List;
                         @ColumnResult(name = "last_modified_date_chapter", type = LocalDateTime.class),
                         @ColumnResult(name = "last_modified_date", type = LocalDateTime.class),
                         @ColumnResult(name = "genre_list", type = String.class),
-                        @ColumnResult(name = "chapter_list", type = String.class)
+                        @ColumnResult(name = "chapter_list", type = String.class),
+//                        @ColumnResult(name= "chapter_numbers", type = Integer.class)
+                }
+        )
+)
+@SqlResultSetMapping(
+        name = "ComicTestMapping",
+        classes = @ConstructorResult(
+                targetClass = ComicTest.class,
+                columns = {
+                        @ColumnResult(name = "comic_id", type = Integer.class),
+                        @ColumnResult(name = "name_comic", type = String.class),
+                        @ColumnResult(name = "author", type = String.class),
+                        @ColumnResult(name = "image_src", type = String.class),
+                        @ColumnResult(name = "state", type = String.class),
+                        @ColumnResult(name = "views", type = Long.class),
+                        @ColumnResult(name = "liked", type = Integer.class),
+                        @ColumnResult(name = "followed", type = Integer.class),
+                        @ColumnResult(name = "create_date", type = LocalDateTime.class),
+                        @ColumnResult(name = "create_date_chapter", type = LocalDateTime.class),
+                        @ColumnResult(name = "last_modified_date_chapter", type = LocalDateTime.class),
+                        @ColumnResult(name = "last_modified_date", type = LocalDateTime.class),
+                        @ColumnResult(name = "genre_list", type = String.class),
+                        @ColumnResult(name = "chapter_list", type = String.class),
+                        @ColumnResult(name= "chapter_numbers", type = Integer.class)
                 }
         )
 )
@@ -82,6 +112,17 @@ import java.util.List;
                 "                GROUP BY C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, C.last_modified_date",
         resultSetMapping = "ComicRequestMapping")
 @EntityListeners(AuditingEntityListener.class)
+@NamedStoredProcedureQuery(
+        name = "ComicTestMapping.findComicsQuery",
+        procedureName = "findComicsQuery",
+        resultSetMappings = "ComicTestMapping",
+        parameters = {
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "stateCheckBox", type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "numOption", type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "sortByOption", type = String.class),
+                @StoredProcedureParameter(mode = ParameterMode.IN, name = "genres", type = String.class)
+        }
+)
 public class Comic implements Serializable {
 
     @Id
@@ -118,24 +159,24 @@ public class Comic implements Serializable {
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
 
-    @CreatedBy
-    @Column(nullable = true, updatable = false)
-    private String createBy;
+//    @CreatedBy
+//    @Column(nullable = true, updatable = false)
+//    private String createBy;
+//
+//
+//    @LastModifiedBy
+//    @Column(insertable = false)
+//    private String lastModifiedBy;
 
 
-    @LastModifiedBy
-    @Column(insertable = false)
-    private LocalDateTime lastModifiedBy;
-
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "comic", cascade=CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "comic")
     private List<Genre> genreList;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "comic", cascade=CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "comic")
     private List<Chapter> chapterList;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", insertable = false, updatable = false, nullable = true)
+    @JoinColumn(name = "user_id", nullable = true)
+    @JsonIgnore
     private User user;
-
 }
