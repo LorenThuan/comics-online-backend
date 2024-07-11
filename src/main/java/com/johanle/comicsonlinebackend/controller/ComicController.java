@@ -22,16 +22,6 @@ public class ComicController {
     @Autowired
     private ComicRepository comicRepository;
 
-//    public ComicController(ComicService comicService) {
-//        this.comicService = comicService;
-//    }
-
-    @PostMapping("/comic")
-    public Comic addComic(@RequestBody Comic comic) {
-        System.out.println("upload comic: " + comic);
-        return comicService.uploadComics(comic);
-    }
-
     @GetMapping("/comics")
     public List<Comic> showListComic() throws Exception{
         List<Comic> comicList = comicService.findAllComics();
@@ -83,6 +73,19 @@ public class ComicController {
             @RequestParam String genres
     ) {
         return comicService.findComicsQuery(stateCheckBox, numOption, sortByOption, genres);
+    }
+
+    @PostMapping("/comic")
+    public Comic addComic(@RequestBody Comic comic) {
+        System.out.println("upload comic: " + comic);
+        return comicService.addComic(comic);
+    }
+
+    /*Get All Comic By name or author*/
+    @GetMapping("/comics/search-comics")
+    public ResponseEntity<List<Comic>> findAllComic(@RequestParam String searchQuery) throws Exception{
+        List<Comic> comicList = comicService.findAllComic(searchQuery);
+        return new ResponseEntity<>(comicList, HttpStatus.OK);
     }
 
 }

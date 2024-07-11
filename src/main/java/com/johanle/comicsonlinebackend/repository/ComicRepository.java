@@ -16,6 +16,10 @@ public interface ComicRepository extends JpaRepository<Comic, Integer> {
     @Query(name = "ComicRequest.getPopularComic", nativeQuery = true)
     public List<ComicRequest> getPopularComic();
 
+    @Query(value = "SELECT * FROM comic\n" +
+            "WHERE name_comic LIKE %:searchQuery% OR author LIKE %:searchQuery%", nativeQuery = true)
+    public List<Comic> findByNameOrAuthor(@Param("searchQuery") String searchQuery);
+
 //    @Query(value = "select * from comic where comic_id = :comicId", nativeQuery = true)
 //    public Comic findComicById(@Param("comicId") int comicId);
 }

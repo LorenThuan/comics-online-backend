@@ -44,7 +44,6 @@ import java.util.Objects;
                         @ColumnResult(name = "last_modified_date", type = LocalDateTime.class),
                         @ColumnResult(name = "genre_list", type = String.class),
                         @ColumnResult(name = "chapter_list", type = String.class),
-//                        @ColumnResult(name= "chapter_numbers", type = Integer.class)
                 }
         )
 )

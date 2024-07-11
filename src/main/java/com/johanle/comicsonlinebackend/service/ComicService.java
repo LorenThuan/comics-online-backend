@@ -2,11 +2,13 @@ package com.johanle.comicsonlinebackend.service;
 
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
 import com.johanle.comicsonlinebackend.dto.ComicTest;
+import com.johanle.comicsonlinebackend.model.Chapter;
 import com.johanle.comicsonlinebackend.model.Comic;
+import com.johanle.comicsonlinebackend.model.Genre;
+import com.johanle.comicsonlinebackend.repository.ChapterRepository;
 import com.johanle.comicsonlinebackend.repository.ComicRepository;
+import com.johanle.comicsonlinebackend.repository.GenreRepository;
 import jakarta.persistence.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,19 +19,19 @@ import java.util.*;
 @Transactional
 public class ComicService {
 
-    @Autowired
     private final ComicRepository comicRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
+    private final GenreRepository genreRepository;
 
-    public ComicService(ComicRepository comicRepository) {;
+    private final ChapterRepository chapterRepository;
+
+    public ComicService(ComicRepository comicRepository, GenreRepository genreRepository, ChapterRepository chapterRepository) {
         this.comicRepository = comicRepository;
-    }
-
-    public Comic uploadComics(Comic comic) {
-        return comicRepository.save(comic);
+        this.genreRepository = genreRepository;
+        this.chapterRepository = chapterRepository;
     }
 
     public Comic readComics(int comicId) {
@@ -42,16 +44,67 @@ public class ComicService {
     }
 
     public void deleteComics(int comicId) throws Exception {
-        comicRepository.deleteById(comicId);
+
+        try {
+            genreRepository.delGenreById(comicId);
+            chapterRepository.delChapterById(comicId);
+            comicRepository.deleteById(comicId);
+        } catch (Exception e) {
+            System.out.println("comicId illegal " + comicId + e.getMessage());
+        }
     }
 
     public Comic updateComic(Comic newComic, int comicId) {
-        return comicRepository.findById(comicId)
-                .map(comic -> {
-                    comic.setNameComic(newComic.getNameComic());
-                    comic.setAuthor(newComic.getAuthor());
-                    return comicRepository.save(comic);
-                }).orElse(null);
+        Comic result = null;
+        try {
+            Optional<Comic> comicOptional = comicRepository.findById(comicId);
+            if (comicOptional.isPresent()) {
+                Comic comic = comicOptional.get();
+                comic.setNameComic(newComic.getNameComic());
+                comic.setAuthor(newComic.getAuthor());
+                comic.setImage_src(newComic.getImage_src());
+                comic.setState(newComic.getState());
+                comic.setGenreList(newComic.getGenreList());
+                comic.setChapterList(newComic.getChapterList());
+                System.out.println("Comic data update " + comic);
+                for (Genre genre : comic.getGenreList()) {
+                    Optional<Genre> genres = genreRepository.findById(genre.getGenreId());
+                    System.out.println("Comic find " + genres);
+                    if (genres.isPresent() && !genre.getGenre().isEmpty()) {
+                        Genre genreNews = genres.get();
+                            genreNews.setComic(comic);
+                            genreNews.setGenre(genre.getGenre());
+                            System.out.println("Comic Update " + genreNews);
+                            genreRepository.save(genreNews);
+                    } else {
+                        genre.setComic(comic);
+                        System.out.println("Comic add " +genre);
+                        genreRepository.save(genre);
+                    }
+                }
+                for (Chapter chapter : comic.getChapterList()) {
+                    Optional<Chapter> chapters = chapterRepository.findById(chapter.getChapterId());
+                    System.out.println("Chapter find " + chapters);
+                    if (chapters.isPresent()) {
+                        Chapter chapterNews = chapters.get();
+                        chapterNews.setComic(comic);
+                        chapterNews.setChapterNumber(chapter.getChapterNumber());
+                        System.out.println(chapterNews);
+                        chapterRepository.save(chapterNews);
+                    } else {
+                        chapter.setComic(comic);
+                        System.out.println("Chapter add " +chapter);
+                        chapterRepository.save(chapter);
+                    }
+                }
+                result = comicRepository.save(comic);
+                System.out.println(result);
+                System.out.println("Comic was update successfully");
+            }
+        } catch (Exception e) {
+            System.out.println("Error while update comic" + e.getMessage());
+        }
+        return result;
     }
 
     public List<ComicRequest> getLastListComic() {
@@ -84,5 +137,39 @@ public class ComicService {
         query.setParameter("genres", genres);
 
         return query.getResultList();
+    }
+
+    public Comic addComic(Comic comic) {
+        Comic result = null;
+       try {
+           result = comicRepository.save(comic);
+           for (Genre genre : comic.getGenreList()) {
+               System.out.println(genre);
+               genre.setComic(comic);
+               genreRepository.save(genre);
+           }
+
+           for (Chapter chapter : comic.getChapterList()) {
+               System.out.println(chapter);
+               chapter.setComic(comic);
+               chapterRepository.save(chapter);
+           }
+       } catch (Exception e) {
+           System.out.println(e.getMessage());
+       }
+       return result;
+    }
+
+    /*Search all comic in database*/
+    public List<Comic> findAllComic(String searchQuery) {
+        List<Comic> comicList = null;
+        try {
+            if (!searchQuery.isEmpty()) {
+                comicList = comicRepository.findByNameOrAuthor(searchQuery);
+            }
+        } catch (Exception e) {
+            System.out.println("Can't find out comic " + e.getMessage());
+        }
+        return comicList;
     }
 }
