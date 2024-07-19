@@ -2,7 +2,6 @@ package com.johanle.comicsonlinebackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.johanle.comicsonlinebackend.model.ChapterInfo;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ComicRequest {
+public class ComicRequestSearch {
     private int comicId;
     private String nameComic;
     private String author;
@@ -28,9 +27,9 @@ public class ComicRequest {
     private LocalDateTime lastModifiedDate;
 
     private List<String> genreList;
-    private List<ChapterInfo> chapterList;
+    private List<String> chapterList;
 
-    public ComicRequest(int comic_id, String name_comic, String author, String image_src, String state, Long views, int liked, int followed, LocalDateTime create_date, LocalDateTime create_date_chapter, LocalDateTime last_modified_date_chapter, LocalDateTime last_modified_date, String genreList, String chapterList) {
+    public ComicRequestSearch(int comic_id, String name_comic, String author, String image_src, String state, Long views, int liked, int followed, LocalDateTime create_date, LocalDateTime create_date_chapter, LocalDateTime last_modified_date_chapter, LocalDateTime last_modified_date, String genreList, String chapterList) {
         this.comicId = comic_id;
         this.nameComic = name_comic;
         this.author = author;
@@ -44,25 +43,12 @@ public class ComicRequest {
         this.lastModifiedDateChapter = last_modified_date_chapter;
         this.lastModifiedDate = last_modified_date;
         this.genreList = convertStringToList(genreList);
-        this.chapterList = convertChapterStringToList(chapterList);
+        this.chapterList = convertStringToList(chapterList);
     }
 
     private List<String> convertStringToList(String data) {
         return data != null ? Arrays.stream(data.split(","))
                 .map(String::trim)
-                .collect(Collectors.toList()) : null;
-    }
-
-    private List<ChapterInfo> convertChapterStringToList(String data) {
-        return data != null ? Arrays.stream(data.split(","))
-                .map(String::trim)
-                .map(ch -> {
-                    String[] parts = ch.split(":");
-                    if (parts.length < 2) {
-                        throw new IllegalArgumentException("Invalid chapter string format: " + ch);
-                    }
-                    return new ChapterInfo(Integer.parseInt(parts[0]), parts[1]);
-                })
                 .collect(Collectors.toList()) : null;
     }
 }

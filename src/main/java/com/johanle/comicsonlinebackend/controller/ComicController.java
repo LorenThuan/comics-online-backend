@@ -59,7 +59,7 @@ public class ComicController {
     }
 
     /*Get Comic By name or author*/
-    @GetMapping("/comics/search-list/")
+    @GetMapping("/comics/search-list")
     public ResponseEntity<List<ComicRequest>> findByNameOrAuthor(@RequestParam String searchQuery) throws Exception{
         List<ComicRequest> comicRequestList = comicService.findByNameOrAuthor(searchQuery);
         return new ResponseEntity<>(comicRequestList, HttpStatus.OK);

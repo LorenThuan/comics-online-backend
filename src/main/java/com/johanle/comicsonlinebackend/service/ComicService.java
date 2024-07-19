@@ -1,6 +1,7 @@
 package com.johanle.comicsonlinebackend.service;
 
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
+import com.johanle.comicsonlinebackend.dto.ComicRequestSearch;
 import com.johanle.comicsonlinebackend.dto.ComicTest;
 import com.johanle.comicsonlinebackend.model.Chapter;
 import com.johanle.comicsonlinebackend.model.Comic;
@@ -19,20 +20,18 @@ import java.util.*;
 @Transactional
 public class ComicService {
 
-    private final ComicRepository comicRepository;
+    @Autowired
+    private ComicRepository comicRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final GenreRepository genreRepository;
+    @Autowired
+    private GenreRepository genreRepository;
 
-    private final ChapterRepository chapterRepository;
+    @Autowired
+    private ChapterRepository chapterRepository;
 
-    public ComicService(ComicRepository comicRepository, GenreRepository genreRepository, ChapterRepository chapterRepository) {
-        this.comicRepository = comicRepository;
-        this.genreRepository = genreRepository;
-        this.chapterRepository = chapterRepository;
-    }
 
     public Comic readComics(int comicId) {
         return comicRepository.findById(comicId).orElse(null);
@@ -124,7 +123,7 @@ public class ComicService {
     }
 
     public List<ComicRequest> findByNameOrAuthor(String searchQuery) {
-        Query query = entityManager.createNamedQuery("ComicRequest.findByNameOrAuthor", ComicRequest.class);
+        Query query = entityManager.createNamedQuery("ComicRequestSearchMapping.findByNameOrAuthor", ComicRequestSearch.class);
         query.setParameter("searchQuery", "%" + searchQuery + "%");
         return query.getResultList();
     }

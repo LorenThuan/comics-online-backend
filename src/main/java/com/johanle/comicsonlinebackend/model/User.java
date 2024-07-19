@@ -27,7 +27,7 @@ public class User implements Serializable, UserDetails {
     private String name;
     private String email;
     private String password;
-//    private List<Comic> readingList;
+
     private String role;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")

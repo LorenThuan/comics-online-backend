@@ -1,6 +1,7 @@
 package com.johanle.comicsonlinebackend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
@@ -11,13 +12,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"comic"})
+@ToString(exclude = {"comic", "fileDataList"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @EntityListeners(AuditingEntityListener.class)
 public class Chapter implements Serializable {
 
@@ -47,4 +50,7 @@ public class Chapter implements Serializable {
     @JoinColumn(name = "comic_id")
     @JsonIgnore
     private Comic comic;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chapter")
+    private List<FileData> fileDataList;
 }

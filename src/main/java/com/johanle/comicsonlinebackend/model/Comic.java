@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
+import com.johanle.comicsonlinebackend.dto.ComicRequestSearch;
 import com.johanle.comicsonlinebackend.dto.ComicTest;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,28 @@ import java.util.Objects;
         name = "ComicRequestMapping",
         classes = @ConstructorResult(
                 targetClass = ComicRequest.class,
+                columns = {
+                        @ColumnResult(name = "comic_id", type = Integer.class),
+                        @ColumnResult(name = "name_comic", type = String.class),
+                        @ColumnResult(name = "author", type = String.class),
+                        @ColumnResult(name = "image_src", type = String.class),
+                        @ColumnResult(name = "state", type = String.class),
+                        @ColumnResult(name = "views", type = Long.class),
+                        @ColumnResult(name = "liked", type = Integer.class),
+                        @ColumnResult(name = "followed", type = Integer.class),
+                        @ColumnResult(name = "create_date", type = LocalDateTime.class),
+                        @ColumnResult(name = "create_date_chapter", type = LocalDateTime.class),
+                        @ColumnResult(name = "last_modified_date_chapter", type = LocalDateTime.class),
+                        @ColumnResult(name = "last_modified_date", type = LocalDateTime.class),
+                        @ColumnResult(name = "genre_list", type = String.class),
+                        @ColumnResult(name = "chapter_list", type = String.class),
+                }
+        )
+)
+@SqlResultSetMapping(
+        name = "ComicRequestSearchMapping",
+        classes = @ConstructorResult(
+                targetClass = ComicRequestSearch.class,
                 columns = {
                         @ColumnResult(name = "comic_id", type = Integer.class),
                         @ColumnResult(name = "name_comic", type = String.class),
@@ -74,7 +97,7 @@ import java.util.Objects;
         name = "ComicRequest.getLimitComic",
         query = "SELECT distinct C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, MAX(CH.create_date) AS create_date_chapter, MAX(CH.last_modified_date) AS last_modified_date_chapter, C.last_modified_date,\n" +
                 "                GROUP_CONCAT(distinct genre ORDER BY genre SEPARATOR ', ') AS genre_list,\n" +
-                "                GROUP_CONCAT(distinct chapter_number ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
+                "                GROUP_CONCAT(DISTINCT CONCAT(CH.chapter_id, ':', chapter_number) ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
                 "                FROM genre G JOIN comic C ON G.comic_id = C.comic_id JOIN chapter CH ON C.comic_id = CH.comic_id\n" +
                 "                GROUP BY C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, C.last_modified_date\n" +
                 "                ORDER BY \n" +
@@ -95,21 +118,21 @@ import java.util.Objects;
         name = "ComicRequest.getPopularComic",
         query = "SELECT distinct C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, MAX(CH.create_date) AS create_date_chapter, MAX(CH.last_modified_date) AS last_modified_date_chapter, C.last_modified_date,\n" +
                 "GROUP_CONCAT(distinct genre ORDER BY genre SEPARATOR ', ') AS genre_list, \n" +
-                "GROUP_CONCAT(distinct chapter_number ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
+                "GROUP_CONCAT(DISTINCT CONCAT(CH.chapter_id, ':', chapter_number) ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
                 "FROM genre G JOIN comic C ON G.comic_id = C.comic_id JOIN chapter CH ON C.comic_id = CH.comic_id\n" +
-                "GROUP BY C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, C.last_modified_date, CH.create_date, CH.last_modified_date\n" +
+                "GROUP BY C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, C.last_modified_date\n" +
                 "ORDER BY views DESC\n" +
                 "LIMIT 10;",
         resultSetMapping = "ComicRequestMapping"
 )
-@NamedNativeQuery(name = "ComicRequest.findByNameOrAuthor",
+@NamedNativeQuery(name = "ComicRequestSearchMapping.findByNameOrAuthor",
         query = "SELECT distinct C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, MAX(CH.create_date) AS create_date_chapter, MAX(CH.last_modified_date) AS last_modified_date_chapter, C.last_modified_date,\n" +
                 "                GROUP_CONCAT(distinct genre ORDER BY genre SEPARATOR ', ') AS genre_list,\n" +
                 "                GROUP_CONCAT(distinct chapter_number ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
                 "                FROM genre G JOIN comic C ON G.comic_id = C.comic_id JOIN chapter CH ON C.comic_id = CH.comic_id\n" +
                 "                WHERE name_comic LIKE :searchQuery OR author LIKE :searchQuery\n" +
                 "                GROUP BY C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, C.last_modified_date",
-        resultSetMapping = "ComicRequestMapping")
+        resultSetMapping = "ComicRequestSearchMapping")
 @EntityListeners(AuditingEntityListener.class)
 @NamedStoredProcedureQuery(
         name = "ComicTestMapping.findComicsQuery",
