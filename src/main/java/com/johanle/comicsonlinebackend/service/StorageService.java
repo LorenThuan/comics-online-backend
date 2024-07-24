@@ -3,17 +3,19 @@ package com.johanle.comicsonlinebackend.service;
 
 import com.johanle.comicsonlinebackend.model.Chapter;
 import com.johanle.comicsonlinebackend.model.FileData;
+import com.johanle.comicsonlinebackend.model.ImageResponse;
 import com.johanle.comicsonlinebackend.repository.ChapterRepository;
 import com.johanle.comicsonlinebackend.repository.FileDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,9 +30,20 @@ public class StorageService {
     @Autowired
     private ChapterRepository chapterRepository;
 
-    private static final String FOLDER_PATH = "C:/Users/thuan/Desktop/MyFiles/";
+//    private static final String FOLDER_PATH = "C:/Users/thuan/Desktop/MyFiles/Vol. 1 Ch. 1 - Different Dimension Freshmen/";
 
-    public List<String> uploadImagesToFileSystem(List<MultipartFile> files, int chapterId) {
+//    public String uploadImage(MultipartFile file) throws IOException {
+//        ImageData imageData = repository.save(ImageData.builder()
+//                .name(file.getOriginalFilename())
+//                .type(file.getContentType())
+//                .imageData(ImageUtils.compressImage(file.getBytes())).build());
+//        if (imageData != null) {
+//            return "file uploaded successfully : " + file.getOriginalFilename();
+//        }
+//        return null;
+//    }
+
+    public List<String> uploadImagesToFileSystem(List<MultipartFile> files, int chapterId, String folderPath) {
         return files.stream().map(file -> {
             try {
                 Optional<Chapter> chapterOpt = chapterRepository.findById(chapterId);
@@ -43,7 +56,7 @@ public class StorageService {
                     chapter.setFileDataList(new ArrayList<>());
                 }
 
-                String filePath = FOLDER_PATH + file.getOriginalFilename();
+                String filePath = folderPath + file.getOriginalFilename();
                 List<FileData> existingFiles = fileDataRepository.findByChapter(chapter);
 
                 boolean fileExists = existingFiles.stream()
@@ -72,21 +85,37 @@ public class StorageService {
         }).collect(Collectors.toList());
     }
 
-    public List<FileData> findImagesByChapterId(int chapterId) {
-        List<FileData> fileDataList = new ArrayList<>();
+    public List<ImageResponse> findImagesByChapterId(int chapterId) {
+        List<ImageResponse> imageResponses = new ArrayList<>();
+
         try {
             Optional<Chapter> chapterOptional = chapterRepository.findById(chapterId);
             if (chapterOptional.isPresent()) {
                 Chapter chapter = chapterOptional.get();
-                fileDataList = fileDataRepository.findByChapter(chapter);
+                List<FileData> fileDataList = fileDataRepository.findByChapter(chapter);
                 if (fileDataList != null) {
-                    System.out.println(fileDataList);
-                    return fileDataList;
+                    for (FileData fileData : fileDataList) {
+                        String filePath = fileData.getFilePath();
+                        byte[] images = Files.readAllBytes(new File(filePath).toPath());
+                        String base64EncodedImage = Base64.getEncoder().encodeToString(images);
+                        ImageResponse imageResponse = new ImageResponse();
+                        imageResponse.setData(base64EncodedImage);
+                        imageResponse.setContentType(fileData.getType());
+                        imageResponse.setFilename(fileData.getName());
+                        imageResponses.add(imageResponse);
+                    }
                 }
             }
         } catch (Exception e) {
             System.out.println("Can't not find chapter by id: " + e.getMessage());
         }
-        return null;
+        return imageResponses;
+    }
+
+    public byte[] downloadImageFromFileSystem(String fileName) throws IOException {
+        Optional<FileData> fileData = fileDataRepository.findByName(fileName);
+        String filePath = fileData.get().getFilePath();
+        byte[] images = Files.readAllBytes(new File(filePath).toPath());
+        return images;
     }
 }

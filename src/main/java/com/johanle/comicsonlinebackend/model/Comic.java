@@ -1,6 +1,5 @@
 package com.johanle.comicsonlinebackend.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
@@ -17,7 +16,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Data
@@ -95,43 +93,118 @@ import java.util.Objects;
 )
 @NamedNativeQuery(
         name = "ComicRequest.getLimitComic",
-        query = "SELECT distinct C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, MAX(CH.create_date) AS create_date_chapter, MAX(CH.last_modified_date) AS last_modified_date_chapter, C.last_modified_date,\n" +
-                "                GROUP_CONCAT(distinct genre ORDER BY genre SEPARATOR ', ') AS genre_list,\n" +
-                "                GROUP_CONCAT(DISTINCT CONCAT(CH.chapter_id, ':', chapter_number) ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
-                "                FROM genre G JOIN comic C ON G.comic_id = C.comic_id JOIN chapter CH ON C.comic_id = CH.comic_id\n" +
-                "                GROUP BY C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, C.last_modified_date\n" +
-                "                ORDER BY \n" +
-                "    GREATEST(\n" +
-                "        COALESCE(MAX(CH.create_date), C.create_date), \n" +
-                "        COALESCE(MAX(CH.last_modified_date), C.last_modified_date)\n" +
-                "    ) DESC,\n" +
-                "    GREATEST(\n" +
-                "        COALESCE(MAX(CH.last_modified_date), C.last_modified_date), \n" +
-                "        C.create_date\n" +
-                "    ) DESC,\n" +
+        query = "SELECT \n" +
+                "    C.comic_id, \n" +
+                "    name_comic, \n" +
+                "    author, \n" +
+                "    image_src, \n" +
+                "    state, \n" +
+                "    views, \n" +
+                "    liked, \n" +
+                "    followed, \n" +
+                "    C.create_date, \n" +
+                "    MAX(CH.create_date) AS create_date_chapter, \n" +
+                "    MAX(CH.last_modified_date) AS last_modified_date_chapter, \n" +
+                "    C.last_modified_date,\n" +
+                "    GROUP_CONCAT(DISTINCT G.genre ORDER BY G.genre SEPARATOR ', ') AS genre_list,\n" +
+                "\tGROUP_CONCAT(DISTINCT CH.chapter_number ORDER BY CAST(SUBSTRING_INDEX(CH.chapter_number, ' ', -1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
+                "FROM \n" +
+                "    genre G \n" +
+                "JOIN \n" +
+                "    comic C ON G.comic_id = C.comic_id \n" +
+                "JOIN \n" +
+                "    chapter CH ON C.comic_id = CH.comic_id\n" +
+                "GROUP BY \n" +
+                "    C.comic_id, name_comic, author, image_src, state, views, liked, followed, \n" +
+                "    C.create_date, C.last_modified_date\n" +
+                "ORDER BY \n" +
+                "    CASE \n" +
+                "        WHEN MAX(CH.create_date) > C.create_date THEN MAX(CH.create_date)\n" +
+                "        WHEN MAX(CH.last_modified_date) > MAX(CH.create_date) THEN MAX(CH.last_modified_date)\n" +
+                "        ELSE C.create_date \n" +
+                "    END DESC, \n" +
+                "    CASE \n" +
+                "        WHEN MAX(CH.last_modified_date) > MAX(CH.create_date) THEN MAX(CH.last_modified_date)\n" +
+                "        ELSE C.create_date \n" +
+                "    END DESC, \n" +
                 "    C.comic_id DESC, \n" +
-                "    C.create_date DESC, \n" +
-                "    C.last_modified_date DESC;",
-        resultSetMapping = "ComicRequestMapping"
+                "    C.create_date DESC",
+        resultSetMapping = "ComicRequestSearchMapping"
 )
 @NamedNativeQuery(
         name = "ComicRequest.getPopularComic",
-        query = "SELECT distinct C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, MAX(CH.create_date) AS create_date_chapter, MAX(CH.last_modified_date) AS last_modified_date_chapter, C.last_modified_date,\n" +
-                "GROUP_CONCAT(distinct genre ORDER BY genre SEPARATOR ', ') AS genre_list, \n" +
-                "GROUP_CONCAT(DISTINCT CONCAT(CH.chapter_id, ':', chapter_number) ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
-                "FROM genre G JOIN comic C ON G.comic_id = C.comic_id JOIN chapter CH ON C.comic_id = CH.comic_id\n" +
-                "GROUP BY C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, C.last_modified_date\n" +
-                "ORDER BY views DESC\n" +
-                "LIMIT 10;",
-        resultSetMapping = "ComicRequestMapping"
+        query = "SELECT  \n" +
+                "    C.comic_id, \n" +
+                "    name_comic, \n" +
+                "    author, \n" +
+                "    image_src, \n" +
+                "    state, \n" +
+                "    views, \n" +
+                "    liked, \n" +
+                "    followed, \n" +
+                "    C.create_date, \n" +
+                "    MAX(CH.create_date) AS create_date_chapter, \n" +
+                "    MAX(CH.last_modified_date) AS last_modified_date_chapter, \n" +
+                "    C.last_modified_date,\n" +
+                "    GROUP_CONCAT(DISTINCT G.genre ORDER BY G.genre SEPARATOR ', ') AS genre_list,\n" +
+                "\tGROUP_CONCAT(DISTINCT CH.chapter_number ORDER BY CAST(SUBSTRING_INDEX(CH.chapter_number, ' ', -1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
+                "FROM \n" +
+                "    genre G \n" +
+                "JOIN \n" +
+                "    comic C ON G.comic_id = C.comic_id \n" +
+                "JOIN \n" +
+                "    chapter CH ON C.comic_id = CH.comic_id\n" +
+                "GROUP BY \n" +
+                "    C.comic_id, \n" +
+                "    name_comic, \n" +
+                "    author, \n" +
+                "    image_src, \n" +
+                "    state, \n" +
+                "    views, \n" +
+                "    liked, \n" +
+                "    followed, \n" +
+                "    C.create_date, \n" +
+                "    C.last_modified_date\n" +
+                "ORDER BY \n" +
+                "    views DESC\n" +
+                "LIMIT 10",
+        resultSetMapping = "ComicRequestSearchMapping"
 )
 @NamedNativeQuery(name = "ComicRequestSearchMapping.findByNameOrAuthor",
-        query = "SELECT distinct C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, MAX(CH.create_date) AS create_date_chapter, MAX(CH.last_modified_date) AS last_modified_date_chapter, C.last_modified_date,\n" +
-                "                GROUP_CONCAT(distinct genre ORDER BY genre SEPARATOR ', ') AS genre_list,\n" +
-                "                GROUP_CONCAT(distinct chapter_number ORDER BY CAST(SUBSTRING(chapter_number, LOCATE(' ', chapter_number) + 1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
-                "                FROM genre G JOIN comic C ON G.comic_id = C.comic_id JOIN chapter CH ON C.comic_id = CH.comic_id\n" +
-                "                WHERE name_comic LIKE :searchQuery OR author LIKE :searchQuery\n" +
-                "                GROUP BY C.comic_id, name_comic, author, image_src, state, views, liked, followed, C.create_date, C.last_modified_date",
+        query = "SELECT \n" +
+                "    C.comic_id, \n" +
+                "    name_comic, \n" +
+                "    author, \n" +
+                "    image_src, \n" +
+                "    state, \n" +
+                "    views, \n" +
+                "    liked, \n" +
+                "    followed, \n" +
+                "    C.create_date, \n" +
+                "    MAX(CH.create_date) AS create_date_chapter, \n" +
+                "    MAX(CH.last_modified_date) AS last_modified_date_chapter, \n" +
+                "    C.last_modified_date,\n" +
+                "    GROUP_CONCAT(DISTINCT G.genre ORDER BY G.genre SEPARATOR ', ') AS genre_list,\n" +
+                "\tGROUP_CONCAT(DISTINCT CH.chapter_number ORDER BY CAST(SUBSTRING_INDEX(CH.chapter_number, ' ', -1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list\n" +
+                "FROM \n" +
+                "    genre G \n" +
+                "JOIN \n" +
+                "    comic C ON G.comic_id = C.comic_id \n" +
+                "JOIN \n" +
+                "    chapter CH ON C.comic_id = CH.comic_id\n" +
+                "WHERE \n" +
+                "    name_comic LIKE :searchQuery OR author LIKE :searchQuery\n" +
+                "GROUP BY \n" +
+                "    C.comic_id, \n" +
+                "    name_comic, \n" +
+                "    author, \n" +
+                "    image_src, \n" +
+                "    state, \n" +
+                "    views, \n" +
+                "    liked, \n" +
+                "    followed, \n" +
+                "    C.create_date, \n" +
+                "    C.last_modified_date",
         resultSetMapping = "ComicRequestSearchMapping")
 @EntityListeners(AuditingEntityListener.class)
 @NamedStoredProcedureQuery(
@@ -157,9 +230,6 @@ public class Comic implements Serializable {
     private String author;
     @Column(nullable = false)
     private String image_src;
-
-//    @Column(nullable = false)
-//    private String genre;
 
 //  private int chapNumber;
 //    private String rating;
@@ -197,7 +267,7 @@ public class Comic implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "comic")
     private List<Chapter> chapterList;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = true)
     @JsonIgnore
     private User user;

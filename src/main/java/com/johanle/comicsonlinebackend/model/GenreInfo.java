@@ -7,12 +7,12 @@ import lombok.Data;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChapterInfo {
-    private int chapterId;
-    private String chapterNumber;
+public class GenreInfo {
+    private int genreId;
+    private String genre;
 
-    public ChapterInfo(int chapterId, String chapterNumber) {
-        this.chapterId = chapterId;
-        this.chapterNumber = chapterNumber;
+    public GenreInfo(int genreId, String genre) {
+        this.genreId = genreId;
+        this.genre = genre;
     }
 }

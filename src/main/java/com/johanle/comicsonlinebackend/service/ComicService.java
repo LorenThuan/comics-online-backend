@@ -11,13 +11,13 @@ import com.johanle.comicsonlinebackend.repository.ComicRepository;
 import com.johanle.comicsonlinebackend.repository.GenreRepository;
 import jakarta.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
-@Transactional
 public class ComicService {
 
     @Autowired
@@ -106,20 +106,14 @@ public class ComicService {
         return result;
     }
 
-    public List<ComicRequest> getLastListComic() {
-        List<ComicRequest> comicRequests = comicRepository.getLimitComic();
-        for (ComicRequest comicRequest1: comicRequests) {
-            System.out.println(comicRequest1);
-        }
-        return comicRequests;
+    @Cacheable(value = "comics")
+    public List<ComicRequestSearch> getLastListComic() {
+        return comicRepository.getLimitComic();
     }
 
-    public List<ComicRequest> getPopularComic() {
-        List<ComicRequest> comicRequests = comicRepository.getPopularComic();
-        for (ComicRequest comicRequest1: comicRequests) {
-            System.out.println(comicRequest1);
-        }
-        return comicRequests;
+    @Cacheable(value = "comicsPopular")
+    public List<ComicRequestSearch> getPopularComic() {
+        return comicRepository.getPopularComic();
     }
 
     public List<ComicRequest> findByNameOrAuthor(String searchQuery) {

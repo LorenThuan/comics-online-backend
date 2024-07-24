@@ -21,7 +21,7 @@ public class Genre implements Serializable {
     @Column(nullable = false)
     private String genre;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comic_id")
     @JsonIgnore
     private Comic comic;

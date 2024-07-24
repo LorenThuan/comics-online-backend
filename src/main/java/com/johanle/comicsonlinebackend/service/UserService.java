@@ -20,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-@Transactional
 public class UserService {
 
     private final UserRepository userRepository;

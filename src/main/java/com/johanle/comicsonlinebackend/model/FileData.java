@@ -24,7 +24,7 @@ public class FileData implements Serializable {
     private String type;
     private String filePath;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chapter_id")
     @JsonIgnore
     private Chapter chapter;

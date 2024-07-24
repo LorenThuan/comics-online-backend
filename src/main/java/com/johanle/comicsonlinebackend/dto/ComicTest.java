@@ -55,16 +55,4 @@ public class ComicTest {
                 .collect(Collectors.toList()) : null;
     }
 
-    private List<ChapterInfo> convertChapterStringToList(String data) {
-        return data != null ? Arrays.stream(data.split(","))
-                .map(String::trim)
-                .map(ch -> {
-                    String[] parts = ch.split(":");
-                    if (parts.length < 2) {
-                        throw new IllegalArgumentException("Invalid chapter string format: " + ch);
-                    }
-                    return new ChapterInfo(Integer.parseInt(parts[0]), parts[1]);
-                })
-                .collect(Collectors.toList()) : null;
-    }
 }

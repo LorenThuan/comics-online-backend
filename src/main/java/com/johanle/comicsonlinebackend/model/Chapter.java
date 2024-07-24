@@ -46,11 +46,12 @@ public class Chapter implements Serializable {
 //    @Column(insertable = false)
 //    private String lastModifiedBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comic_id")
     @JsonIgnore
     private Comic comic;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chapter")
+    @JsonIgnore
     private List<FileData> fileDataList;
 }
