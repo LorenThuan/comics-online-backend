@@ -285,5 +285,23 @@ public class UserService {
         return result;
     }
 
-
+    public User removeFromLibrary(int userId, List<Comic> comicList, List<Comic> comicListRemove) {
+        User result = null;
+        try {
+            Optional<User> userOptional = userRepository.findById(userId);
+            if (userOptional.isPresent()) {
+                User userExist = userOptional.get();
+                userExist.setComicList(comicList);
+                for (Comic comic : comicListRemove) {
+                    comic.setUser(null);
+                    comicRepository.save(comic);
+                }
+                result = userRepository.save(userExist);
+                System.out.println("Comic removed from library successfully!");
+            }
+        } catch (Exception e) {
+            System.out.println("Can't found comic or user " + e.getMessage());
+        }
+        return result;
+    }
 }

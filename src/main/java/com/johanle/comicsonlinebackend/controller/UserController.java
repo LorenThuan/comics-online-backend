@@ -1,9 +1,12 @@
 package com.johanle.comicsonlinebackend.controller;
 
+import com.johanle.comicsonlinebackend.dto.RemoveFromLibRequest;
 import com.johanle.comicsonlinebackend.dto.UserRequest;
+import com.johanle.comicsonlinebackend.model.Comic;
 import com.johanle.comicsonlinebackend.model.User;
 import com.johanle.comicsonlinebackend.repository.UserRepository;
 import com.johanle.comicsonlinebackend.service.UserService;
+import org.hibernate.Remove;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -87,6 +91,15 @@ public class UserController {
         String email = authentication.getName();
         User user = userService.addToLibrary(comic_id, email);
         return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/remove/comics/{userId}")
+    public ResponseEntity<User> removeComicFromLibrary
+            (@PathVariable int userId, @RequestBody RemoveFromLibRequest removeFromLibRequest) {
+//        System.out.println("User get" + removeFromLibRequest);
+        User userRequest = userService.
+                removeFromLibrary(userId, removeFromLibRequest.getComicList(), removeFromLibRequest.getComicListRemove());
+        return ResponseEntity.ok(userRequest);
     }
 
 }
