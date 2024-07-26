@@ -3,13 +3,10 @@ package com.johanle.comicsonlinebackend.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
-import com.johanle.comicsonlinebackend.dto.ComicRequestSearch;
 import com.johanle.comicsonlinebackend.dto.ComicTest;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -28,28 +25,6 @@ import java.util.List;
         name = "ComicRequestMapping",
         classes = @ConstructorResult(
                 targetClass = ComicRequest.class,
-                columns = {
-                        @ColumnResult(name = "comic_id", type = Integer.class),
-                        @ColumnResult(name = "name_comic", type = String.class),
-                        @ColumnResult(name = "author", type = String.class),
-                        @ColumnResult(name = "image_src", type = String.class),
-                        @ColumnResult(name = "state", type = String.class),
-                        @ColumnResult(name = "views", type = Long.class),
-                        @ColumnResult(name = "liked", type = Integer.class),
-                        @ColumnResult(name = "followed", type = Integer.class),
-                        @ColumnResult(name = "create_date", type = LocalDateTime.class),
-                        @ColumnResult(name = "create_date_chapter", type = LocalDateTime.class),
-                        @ColumnResult(name = "last_modified_date_chapter", type = LocalDateTime.class),
-                        @ColumnResult(name = "last_modified_date", type = LocalDateTime.class),
-                        @ColumnResult(name = "genre_list", type = String.class),
-                        @ColumnResult(name = "chapter_list", type = String.class),
-                }
-        )
-)
-@SqlResultSetMapping(
-        name = "ComicRequestSearchMapping",
-        classes = @ConstructorResult(
-                targetClass = ComicRequestSearch.class,
                 columns = {
                         @ColumnResult(name = "comic_id", type = Integer.class),
                         @ColumnResult(name = "name_comic", type = String.class),
@@ -129,7 +104,7 @@ import java.util.List;
                 "    END DESC, \n" +
                 "    C.comic_id DESC, \n" +
                 "    C.create_date DESC",
-        resultSetMapping = "ComicRequestSearchMapping"
+        resultSetMapping = "ComicRequestMapping"
 )
 @NamedNativeQuery(
         name = "ComicRequest.getPopularComic",
@@ -168,9 +143,9 @@ import java.util.List;
                 "ORDER BY \n" +
                 "    views DESC\n" +
                 "LIMIT 10",
-        resultSetMapping = "ComicRequestSearchMapping"
+        resultSetMapping = "ComicRequestMapping"
 )
-@NamedNativeQuery(name = "ComicRequestSearchMapping.findByNameOrAuthor",
+@NamedNativeQuery(name = "ComicRequest.findByNameOrAuthor",
         query = "SELECT \n" +
                 "    C.comic_id, \n" +
                 "    name_comic, \n" +
@@ -205,7 +180,44 @@ import java.util.List;
                 "    followed, \n" +
                 "    C.create_date, \n" +
                 "    C.last_modified_date",
-        resultSetMapping = "ComicRequestSearchMapping")
+        resultSetMapping = "ComicRequestMapping")
+@NamedNativeQuery(name = "ComicTest.getComicRecently",
+        query = "SELECT \n" +
+                "    C.comic_id, \n" +
+                "    name_comic, \n" +
+                "    author, \n" +
+                "    image_src, \n" +
+                "    state, \n" +
+                "    views, \n" +
+                "    liked, \n" +
+                "    followed, \n" +
+                "    C.create_date, \n" +
+                "    MAX(CH.create_date) AS create_date_chapter, \n" +
+                "    MAX(CH.last_modified_date) AS last_modified_date_chapter, \n" +
+                "    C.last_modified_date,\n" +
+                "    GROUP_CONCAT(DISTINCT G.genre ORDER BY G.genre SEPARATOR ', ') AS genre_list,\n" +
+                "\tGROUP_CONCAT(DISTINCT CH.chapter_number ORDER BY CAST(SUBSTRING_INDEX(CH.chapter_number, ' ', -1) AS UNSIGNED) DESC SEPARATOR ', ') AS chapter_list,\n" +
+                "    COUNT(DISTINCT CH.chapter_number) AS chapter_numbers\n" +
+                "FROM \n" +
+                "    genre G \n" +
+                "JOIN \n" +
+                "    comic C ON G.comic_id = C.comic_id \n" +
+                "JOIN \n" +
+                "    chapter CH ON C.comic_id = CH.comic_id\n" +
+                "GROUP BY \n" +
+                "    C.comic_id, \n" +
+                "    name_comic, \n" +
+                "    author, \n" +
+                "    image_src, \n" +
+                "    state, \n" +
+                "    views, \n" +
+                "    liked, \n" +
+                "    followed, \n" +
+                "    C.create_date, \n" +
+                "    C.last_modified_date\n" +
+                "HAVING chapter_numbers >= 2\n" +
+                "ORDER BY MAX(CH.create_date) DESC",
+        resultSetMapping = "ComicTestMapping")
 @EntityListeners(AuditingEntityListener.class)
 @NamedStoredProcedureQuery(
         name = "ComicTestMapping.findComicsQuery",

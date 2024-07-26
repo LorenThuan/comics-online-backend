@@ -1,7 +1,6 @@
 package com.johanle.comicsonlinebackend.controller;
 
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
-import com.johanle.comicsonlinebackend.dto.ComicRequestSearch;
 import com.johanle.comicsonlinebackend.dto.ComicTest;
 import com.johanle.comicsonlinebackend.model.Comic;
 import com.johanle.comicsonlinebackend.repository.ComicRepository;
@@ -45,19 +44,25 @@ public class ComicController {
         comicService.deleteComics(comicId);
     }
 
-    /*Show 12 last update comic*/
+    /*Show 12 last update comic as default*/
     @GetMapping("/comic/last-comics")
-    public ResponseEntity<List<ComicRequestSearch>>
+    public ResponseEntity<List<ComicRequest>>
     showLastListComic() throws Exception{
-        List<ComicRequestSearch> comicRequestList = comicService.getLastListComic();
+        List<ComicRequest> comicRequestList = comicService.getLastListComic();
         return ResponseEntity.ok(comicRequestList);
     }
 
     /*Show 10 popular comic by views desc*/
     @GetMapping("/comic/popular-comics")
-    public ResponseEntity<List<ComicRequestSearch>> showPopularComic() throws Exception{
-        List<ComicRequestSearch> comicRequestList = comicService.getPopularComic();
+    public ResponseEntity<List<ComicRequest>> showPopularComic() throws Exception{
+        List<ComicRequest> comicRequestList = comicService.getPopularComic();
         return ResponseEntity.ok(comicRequestList);
+    }
+
+    @GetMapping("/comic/titles/recent")
+    public ResponseEntity<List<ComicTest>> showComicRecentlyAdd() throws Exception{
+        List<ComicTest> comicTests = comicService.getComicRecentlyAdd();
+        return ResponseEntity.ok(comicTests);
     }
 
     /*Get Comic By name or author*/

@@ -1,7 +1,6 @@
 package com.johanle.comicsonlinebackend.service;
 
 import com.johanle.comicsonlinebackend.dto.ComicRequest;
-import com.johanle.comicsonlinebackend.dto.ComicRequestSearch;
 import com.johanle.comicsonlinebackend.dto.ComicTest;
 import com.johanle.comicsonlinebackend.model.Chapter;
 import com.johanle.comicsonlinebackend.model.Comic;
@@ -13,7 +12,6 @@ import jakarta.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -107,19 +105,24 @@ public class ComicService {
     }
 
     @Cacheable(value = "comics")
-    public List<ComicRequestSearch> getLastListComic() {
+    public List<ComicRequest> getLastListComic() {
         return comicRepository.getLimitComic();
     }
 
     @Cacheable(value = "comicsPopular")
-    public List<ComicRequestSearch> getPopularComic() {
+    public List<ComicRequest> getPopularComic() {
         return comicRepository.getPopularComic();
     }
 
     public List<ComicRequest> findByNameOrAuthor(String searchQuery) {
-        Query query = entityManager.createNamedQuery("ComicRequestSearchMapping.findByNameOrAuthor", ComicRequestSearch.class);
+        Query query = entityManager.createNamedQuery("ComicRequest.findByNameOrAuthor", ComicRequest.class);
         query.setParameter("searchQuery", "%" + searchQuery + "%");
         return query.getResultList();
+    }
+
+    @Cacheable(value = "comicsRecentlyAdd")
+    public List<ComicTest> getComicRecentlyAdd() {
+       return comicRepository.getComicRecentlyAdd();
     }
 
     public List<ComicTest> findComicsQuery(String stateCheckBox, String numOption, String sortByOption, String genres) {
