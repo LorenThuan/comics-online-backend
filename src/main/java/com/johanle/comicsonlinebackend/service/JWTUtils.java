@@ -27,7 +27,6 @@ public class JWTUtils {
         byte[] keyBytes = Base64.getDecoder().decode(secretString);
 //        this.key = new SecretKeySpec(keyBytes, "HmacSHA256");
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        System.out.println(key);
     }
 
     public String generateToken(UserDetails userDetails) {

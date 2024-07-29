@@ -80,7 +80,7 @@ public class UserService {
             userRequest.setRole(user.getRole());
             userRequest.setRefreshToken(refreshToken);
             userRequest.setExpirationTime("24Hrs");
-            userRequest.setMessage("Successfully login");
+            userRequest.setMessage("Successfully Logged In");
 
         } catch (Exception e) {
             userRequest.setStatusCode(500);
@@ -99,7 +99,7 @@ public class UserService {
                 userRequest.setStatusCode(200);
                 userRequest.setToken(jwt);
                 userRequest.setRefreshToken(refreshTokenRequest.getToken());
-                userRequest.setExpirationTime("24Hrs");
+                userRequest.setExpirationTime("24Hr");
                 userRequest.setMessage("Successfully Refresh Token");
             }
             userRequest.setStatusCode(200);
@@ -107,8 +107,8 @@ public class UserService {
         } catch (Exception e) {
             userRequest.setStatusCode(500);
             userRequest.setError(e.getMessage());
+            return userRequest;
         }
-        return userRequest;
     }
 
     public UserRequest getAllUsers() {

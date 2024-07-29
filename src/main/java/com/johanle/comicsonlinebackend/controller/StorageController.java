@@ -33,7 +33,7 @@ public class StorageController{
 
     @PostMapping("/image/fileSystem/{chapterId}")
     public ResponseEntity<?> uploadImagesToFileSystem
-            (@RequestParam String folderPath, @RequestParam("images")List<MultipartFile> files,
+            (@RequestParam(value = "folderPath") String folderPath, @RequestParam("images")List<MultipartFile> files,
              @PathVariable int chapterId) throws Exception{
         List<String> uploadResults = storageService.uploadImagesToFileSystem(files, chapterId, folderPath);
         return ResponseEntity.status(HttpStatus.OK).body(uploadResults);
@@ -44,26 +44,6 @@ public class StorageController{
         List<ImageResponse> imageData = storageService.findImagesByChapterId(chapterId);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(imageData);
-    }
-
-    @GetMapping("/image/folderSystem/{fileName}")
-    public ResponseEntity<?> downloadImageFromFileSystem(@PathVariable String fileName) throws IOException {
-        // Assuming the service returns the path to the image file
-        byte[] imageData=storageService.downloadImageFromFileSystem(fileName);
-        Optional<FileData> fileData = fileDataRepository.findByName(fileName);
-        String filePath = fileData.get().getFilePath();
-        Path path = Paths.get(filePath);
-        // Probe the content type
-        String mimeType = Files.probeContentType(path);
-
-        if (mimeType == null) {
-            // Default to binary stream if the mime type is unknown
-            mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
-        }
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.CONTENT_TYPE, mimeType)
                 .body(imageData);
     }
 }

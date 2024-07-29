@@ -96,7 +96,6 @@ public class UserController {
     @PutMapping("/remove/comics/{userId}")
     public ResponseEntity<User> removeComicFromLibrary
             (@PathVariable int userId, @RequestBody RemoveFromLibRequest removeFromLibRequest) {
-//        System.out.println("User get" + removeFromLibRequest);
         User userRequest = userService.
                 removeFromLibrary(userId, removeFromLibRequest.getComicList(), removeFromLibRequest.getComicListRemove());
         return ResponseEntity.ok(userRequest);
