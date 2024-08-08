@@ -8,6 +8,7 @@ import com.johanle.comicsonlinebackend.service.ComicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -22,11 +23,14 @@ public class ComicController {
     @Autowired
     private ComicRepository comicRepository;
 
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
     @GetMapping("/comics")
     public List<Comic> showListComic() throws Exception{
-        List<Comic> comicList = comicService.findAllComics();
-        System.out.println(Arrays.toString(comicList.toArray()));
-        return comicList;
+//        List<Comic> comicList = comicService.findAllComics();
+//        System.out.println(Arrays.toString(comicList.toArray()));
+        return comicService.findAllComics();
     }
 
     @GetMapping("/comics/{comicId}")
@@ -36,18 +40,21 @@ public class ComicController {
 
     @PutMapping("/comics/{comicId}")
     public Comic editComic(@RequestBody Comic newComic, @PathVariable("comicId") int comicId) {
-        return comicService.updateComic(newComic, comicId);
+        Comic updateComic = comicService.updateComic(newComic, comicId);
+        simpMessagingTemplate.convertAndSend("/topic/comicUpdates", "Comic updated");
+        return updateComic;
     }
 
     @DeleteMapping("/comics/{comicId}")
     public void deleteComicById(@PathVariable("comicId") int comicId) throws Exception{
-        comicService.deleteComics(comicId);
+       comicService.deleteComics(comicId);
+       simpMessagingTemplate.convertAndSend("/topic/comicUpdates", "Comic deleted");
     }
 
     /*Show 12 last update comic as default*/
     @GetMapping("/comic/last-comics")
     public ResponseEntity<List<ComicRequest>>
-    showLastListComic() throws Exception{
+    showLastListComic() throws Exception {
         List<ComicRequest> comicRequestList = comicService.getLastListComic();
         return ResponseEntity.ok(comicRequestList);
     }
@@ -84,8 +91,10 @@ public class ComicController {
 
     @PostMapping("/comic")
     public Comic addComic(@RequestBody Comic comic) {
-        System.out.println("upload comic: " + comic);
-        return comicService.addComic(comic);
+        Comic addedComic = comicService.addComic(comic);
+        simpMessagingTemplate.convertAndSend("/topic/comicUpdates", "New comic added");
+//        System.out.println("upload comic: " + comic);
+        return addedComic;
     }
 
     /*Get All Comic By name or author*/

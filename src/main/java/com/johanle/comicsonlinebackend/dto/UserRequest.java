@@ -18,6 +18,7 @@ public class UserRequest {
     private String token;
     private String refreshToken;
     private String expirationTime;
+    private int userId;
     private String name;
     private String role;
     private String email;

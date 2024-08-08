@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
@@ -48,6 +49,15 @@ public class UserService {
     public UserRequest register(UserRequest registrationRequest) {
         UserRequest userRequest = new UserRequest();
         try {
+            List<User> userList = userRepository.findAll();
+            boolean isUserExists = userList.stream()
+                    .anyMatch(u -> u.getEmail().equals(registrationRequest.getEmail()));
+            if (isUserExists) {
+                userRequest.setStatusCode(500);
+                userRequest.setError("Email already exists");
+                return userRequest;
+            }
+
             User user = new User();
             user.setName(registrationRequest.getName());
             user.setEmail(registrationRequest.getEmail());
@@ -76,6 +86,8 @@ public class UserService {
             var jwt = jwtUtils.generateToken(user);
             var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
             userRequest.setStatusCode(200);
+            userRequest.setName(user.getName());
+            userRequest.setUserId(user.getUserId());
             userRequest.setToken(jwt);
             userRequest.setRole(user.getRole());
             userRequest.setRefreshToken(refreshToken);
@@ -176,6 +188,11 @@ public class UserService {
         try {
             Optional<User> userOptional = userRepository.findById(id);
             if (userOptional.isPresent()) {
+               User user = userOptional.get();
+                for (Comic comic : user.getComicList()) {
+                    comic.setUser(null);
+                    comicRepository.save(comic);
+                }
                 userRepository.deleteById(id);
                 userRequest.setStatusCode(200);
                 userRequest.setMessage("Delete successfully");
@@ -254,7 +271,7 @@ public class UserService {
         try {
         Optional<User> userOptional = userRepository.findByEmail(email);
         Comic comic = comicRepository.findById(comic_id).orElse(null);
-        System.out.println(comic);
+//        System.out.println(comic);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
 
@@ -267,11 +284,11 @@ public class UserService {
             if (!user.getComicList().contains(comic)) {
                 comic.setUser(user);
                 user.getComicList().add(comic);
-                System.out.println(user);
-                System.out.println(comic);
+//                System.out.println(user);
+//                System.out.println(comic);
                 comicRepository.save(comic);
                 result = userRepository.save(user);
-                System.out.println(user.getComicList());
+//                System.out.println(user.getComicList());
                 System.out.println("Comic added to library successfully");
             } else {
                 System.out.println("Comic already in library");

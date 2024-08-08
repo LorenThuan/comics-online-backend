@@ -10,12 +10,15 @@ import com.johanle.comicsonlinebackend.repository.ComicRepository;
 import com.johanle.comicsonlinebackend.repository.GenreRepository;
 import jakarta.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
+@Transactional
 public class ComicService {
 
     @Autowired
@@ -30,7 +33,6 @@ public class ComicService {
     @Autowired
     private ChapterRepository chapterRepository;
 
-
     public Comic readComics(int comicId) {
         return comicRepository.findById(comicId).orElse(null);
     }
@@ -40,6 +42,7 @@ public class ComicService {
         return comicRepository.findAll();
     }
 
+    @CacheEvict(value = {"comics", "comicsPopular", "comicsRecentlyAdd"}, allEntries = true)
     public void deleteComics(int comicId) throws Exception {
 
         try {
@@ -51,6 +54,7 @@ public class ComicService {
         }
     }
 
+    @CacheEvict(value = {"comics", "comicsPopular", "comicsRecentlyAdd"}, allEntries = true)
     public Comic updateComic(Comic newComic, int comicId) {
         Comic result = null;
         try {
@@ -63,39 +67,39 @@ public class ComicService {
                 comic.setState(newComic.getState());
                 comic.setGenreList(newComic.getGenreList());
                 comic.setChapterList(newComic.getChapterList());
-                System.out.println("Comic data update " + comic);
+//                System.out.println("Comic data update " + comic);
                 for (Genre genre : comic.getGenreList()) {
                     Optional<Genre> genres = genreRepository.findById(genre.getGenreId());
-                    System.out.println("Comic find " + genres);
+//                    System.out.println("Comic find " + genres);
                     if (genres.isPresent() && !genre.getGenre().isEmpty()) {
                         Genre genreNews = genres.get();
                             genreNews.setComic(comic);
                             genreNews.setGenre(genre.getGenre());
-                            System.out.println("Comic Update " + genreNews);
+//                            System.out.println("Comic Update " + genreNews);
                             genreRepository.save(genreNews);
                     } else {
                         genre.setComic(comic);
-                        System.out.println("Comic add " +genre);
+//                        System.out.println("Comic add " +genre);
                         genreRepository.save(genre);
                     }
                 }
                 for (Chapter chapter : comic.getChapterList()) {
                     Optional<Chapter> chapters = chapterRepository.findById(chapter.getChapterId());
-                    System.out.println("Chapter find " + chapters);
+//                    System.out.println("Chapter find " + chapters);
                     if (chapters.isPresent()) {
                         Chapter chapterNews = chapters.get();
                         chapterNews.setComic(comic);
                         chapterNews.setChapterNumber(chapter.getChapterNumber());
-                        System.out.println(chapterNews);
+//                        System.out.println(chapterNews);
                         chapterRepository.save(chapterNews);
                     } else {
                         chapter.setComic(comic);
-                        System.out.println("Chapter add " +chapter);
+//                        System.out.println("Chapter add " +chapter);
                         chapterRepository.save(chapter);
                     }
                 }
                 result = comicRepository.save(comic);
-                System.out.println(result);
+//                System.out.println(result);
                 System.out.println("Comic was update successfully");
             }
         } catch (Exception e) {
@@ -135,18 +139,19 @@ public class ComicService {
         return query.getResultList();
     }
 
+    @CacheEvict(value = {"comics", "comicsPopular", "comicsRecentlyAdd"}, allEntries = true)
     public Comic addComic(Comic comic) {
         Comic result = null;
        try {
            result = comicRepository.save(comic);
            for (Genre genre : comic.getGenreList()) {
-               System.out.println(genre);
+//               System.out.println(genre);
                genre.setComic(comic);
                genreRepository.save(genre);
            }
 
            for (Chapter chapter : comic.getChapterList()) {
-               System.out.println(chapter);
+//               System.out.println(chapter);
                chapter.setComic(comic);
                chapterRepository.save(chapter);
            }

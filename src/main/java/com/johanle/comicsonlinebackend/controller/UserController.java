@@ -32,7 +32,7 @@ public class UserController {
         return ResponseEntity.ok(userService.register(userRequest));
     }
 
-    @GetMapping("/auth/refresh")
+    @PostMapping("/auth/refresh")
     public ResponseEntity<UserRequest> refreshToken(@RequestBody UserRequest userRequest) {
         return ResponseEntity.ok(userService.refreshToken(userRequest));
     }
@@ -82,10 +82,10 @@ public class UserController {
 
     @PostMapping("/titles/follows")
     public ResponseEntity<User> addToLibrary(@RequestParam int comic_id) {
-        System.out.println("Received comicId: " + comic_id);  // Debugging line
+//        System.out.println("Received comicId: " + comic_id);  // Debugging line
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            System.out.println("Authentication is null");  // Debugging line
+//            System.out.println("Authentication is null");  // Debugging line
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         String email = authentication.getName();

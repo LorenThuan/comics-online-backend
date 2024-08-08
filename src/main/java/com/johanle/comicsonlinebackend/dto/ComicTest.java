@@ -2,7 +2,6 @@ package com.johanle.comicsonlinebackend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.johanle.comicsonlinebackend.model.ChapterInfo;
 import lombok.Data;
 
 import java.time.LocalDateTime;

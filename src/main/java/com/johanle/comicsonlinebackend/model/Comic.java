@@ -253,7 +253,7 @@ public class Comic implements Serializable {
 
     private int followed;
 
-    private Long views;
+    private Long views = 0L;
 
     @CreatedDate
     @Column(nullable = true, updatable = false)
